@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 const dep = require
 import ChatBar from './ChatBar.jsx';
-import Message from './MessageList.jsx';
+import MessageList from './MessageList.jsx';
+import Message from './Message.jsx';
 
 function Loading() {
   return (
@@ -15,32 +16,59 @@ class App extends Component {
     super(props);
     this.state = {
       loading:true,
-      messages: [1,2,3,4],
+      messages: Message,
       currentUser: "Anonymous"
     };
+    this.addNewMessage = this.addNewMessage.bind(this);
+    this.changeUserName = this.changeUserName.bind(this);
   }
 
   componentDidMount() {
-    // After 3 seconds, set `loading` to false in the state.
     setTimeout(() => {
-      this.setState({loading: false}); // this triggers a re-render!
-    }, 1000)
+      console.log("Simulating incoming message");
+      const newMessage = {id: 8, username: "Michelle", content: "Hello there!"};
+      const messages = this.state.messages.concat(newMessage)
+      // Update the state of the app component.
+      // Calling setState will trigger a call to render() in App and all child components.
+
+      this.setState({
+        messages: messages,
+        loading:false
+      })
+    }, 2000);
   }
+
+  changeUserName(user) {
+    console.log(user);
+    this.setState({
+      currentUser: user
+    })
+    console.log(this.state)
+  }
+
+  addNewMessage(message) {
+    const oldMessages = this.state.messages;
+    const newMessages = [...oldMessages, message];
+    this.setState({
+      messages: newMessages
+    });
+  }
+
   render() {
     //refactor as terary, this is gross, make use of less lines
     if (this.state.loading) {
       return (
         <div>
           <Loading />
-          <ChatBar />
+          <ChatBar currentUser={this.state.currentUser}/>
         </div>
         )
     } else {
       return (
         <div>
           <h1>Hello React :)</h1>
-          <Message />
-          <ChatBar />
+          <MessageList messages={this.state.messages}/>
+          <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} addNewMessage={this.addNewMessage} />
         </div>
       );
     }
@@ -53,4 +81,9 @@ export default App;
 
 {
 // responsible for storing all data for in this.state
+
+
+
+
+// and change user
 }

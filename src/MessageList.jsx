@@ -1,24 +1,30 @@
 import React, {Component} from 'react';
 
 
-class Message extends Component {
-  render(){
+function MessageList(props) {
+
+
+  const passedMessages = props.messages.map( (message) => {
+    let {id, type, content, username} = message;
+
+    return (
+      type === "incomingMessage"
+        ? <div className="message" key={id}>
+            <span className="message-username">{username}</span>
+            <span className="message-content">{content}</span>
+          </div>
+        : <div className="message system" key={id}>
+            {message.content};
+          </div>
+    )
+
+  });
 
     return (
       <main className="messages">
-        <div className="message">
-          <span className="message-username">Anonymous1</span>
-          <span className="message-content">I won't be impressed with technology until I can download food.</span>
-        </div>
-        {/*
-        <div className="message system">
-          Anonymous1 changed their name to nomnom.
-        </div>
-      */}
+        {passedMessages}
       </main>
     );
-  }
 }
 
-export default Message;
-
+export default MessageList;
