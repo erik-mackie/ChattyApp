@@ -22,12 +22,11 @@ const wss = new SocketServer({ server });
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
 
-const userMessages = [];
+const chatPosts = [];
+
 // on connection to server, take in message data into message array
 wss.on('connection', (ws) => {
   //current resents on each connection
-
-
 
   console.log('Client connected');
   // recieve new message as json and parse
@@ -37,17 +36,16 @@ wss.on('connection', (ws) => {
     // add unique ID before sending to message array
     incomingMessage.id = uuidv1();
 
-    userMessages.push(incomingMessage);
+    chatPosts.push(incomingMessage);
     console.log(`${incomingMessage.username} said ${incomingMessage.content} `);
-
-    wss.broadcast(userMessages);
+    console.log(chatPosts)
+    wss.broadcast(chatPosts);
 
   }); // on.message
 
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () =>
-    // clients.array.split()
     console.log('Client disconnected'));
 });
 
@@ -58,7 +56,6 @@ wss.broadcast = function broadcast(data) {
       client.send(JSON.stringify(data));
     }
   });
-// implements, user is typing on other broadcast
 };
 
   // Construct a msg object containing the data the server needs to process the message from the chat client.
