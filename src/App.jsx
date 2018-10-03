@@ -25,6 +25,18 @@ class App extends Component {
   }
 
   componentDidMount() {
+
+    const ws =  new WebSocket("ws://localhost:3001");
+    ws.send("Here's some text that the server is urgently awaiting!");
+
+
+      // ws.on('open', function open() {
+      //   ws.send('something');
+      // });
+
+
+
+    // faux time for message load
     setTimeout(() => {
       console.log("Simulating incoming message");
       const newMessage = {id: 8, username: "Michelle", content: "Hello there!"};
@@ -80,11 +92,3 @@ class App extends Component {
 export default App;
 
 
-{
-// responsible for storing all data for in this.state
-
-
-
-
-// and change user
-}

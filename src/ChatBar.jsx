@@ -11,6 +11,7 @@ class ChatBar extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  // handle user field change
   handleChange(evt) {
     this.setState({usernameFieldValue: evt.target.value})
   }
@@ -20,7 +21,7 @@ class ChatBar extends React.Component {
     const messageOnEnter = evt => {
       if(evt.key === 'Enter') {
         const messageInput = evt.target;
-
+        // new message obj
         const newMessage = {
           id: new Date(),
           type: "incomingMessage",
@@ -32,11 +33,11 @@ class ChatBar extends React.Component {
           newMessage.username = this.state.usernameFieldValue;
           this.props.changeUserName(this.state.usernameFieldValue);
         }
-
         this.props.addNewMessage(newMessage);
         messageInput.value = "";
       }
     }
+    // change username on enter;
     const usernameOnEnter = evt => {
       if(evt.key === 'Enter') {
         const userInput = evt.target;
