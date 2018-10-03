@@ -4,6 +4,7 @@ import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 import Message from './Message.jsx';
 
+
 function Loading() {
   return (
     <h1>Loading...</h1>
@@ -42,8 +43,8 @@ class App extends Component {
     console.log(user);
     this.setState({
       currentUser: user
-    })
-    console.log(this.state)
+    });
+
   }
 
   addNewMessage(message) {

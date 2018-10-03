@@ -6,9 +6,13 @@ class ChatBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: new Date(),
-      currentUser: this.props.currentUser
+      usernameFieldValue: this.props.currentUser
     };
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(evt) {
+    this.setState({usernameFieldValue: evt.target.value})
   }
 
   render(){
@@ -16,12 +20,20 @@ class ChatBar extends React.Component {
     const messageOnEnter = evt => {
       if(evt.key === 'Enter') {
         const messageInput = evt.target;
-        this.props.addNewMessage({
-          id: this.state.id,
+
+        const newMessage = {
+          id: new Date(),
           type: "incomingMessage",
           content: messageInput.value,
-          username: this.currentUser
-        });
+          username: this.props.currentUser
+        };
+        // check if user handle field has changed, then update new message user handle.
+        if (newMessage.username !== this.state.usernameFieldValue) {
+          newMessage.username = this.state.usernameFieldValue;
+          this.props.changeUserName(this.state.usernameFieldValue);
+        }
+
+        this.props.addNewMessage(newMessage);
         messageInput.value = "";
       }
     }
@@ -34,7 +46,10 @@ class ChatBar extends React.Component {
 
     return(
       <footer className="chatbar">
-        <input className="chatbar-username" name="userBar" defaultValue={this.state.currentUser} onKeyPress={usernameOnEnter} />
+        <input className="chatbar-username" name="userBar"
+                value={this.state.usernameFieldValue}
+                onChange={this.handleChange}
+                onKeyPress={usernameOnEnter} />
         <input className="chatbar-message" name="messageBar" placeholder="Type a message and hit ENTER" onKeyPress={messageOnEnter} />
       </footer>
       );
