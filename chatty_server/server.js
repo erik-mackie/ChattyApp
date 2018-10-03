@@ -1,7 +1,9 @@
 // server.js
 
 const express = require('express');
+const WebSocket = require('ws');
 const SocketServer = require('ws').Server;
+const uuidv1 = require('uuid/v1'); // UUID generator
 
 // Set the port to 3001
 const PORT = 3001;
@@ -20,27 +22,44 @@ const wss = new SocketServer({ server });
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
 
-// (ws), different client paths ex ws1 ws2 etc
+const userMessages = [];
+// on connection to server, take in message data into message array
 wss.on('connection', (ws) => {
+  //current resents on each connection
+
+
+
   console.log('Client connected');
-
-    const msg = {
-    message: "Connected to server"
-  };
-
   // recieve new message as json and parse
   ws.on('message', function incoming(data) {
-    console.log(JSON.parse(data));
-  });
-  // Send the msg object as a JSON-formatted string.
-  ws.send(JSON.stringify(msg));
+
+    const incomingMessage = JSON.parse(data);
+    // add unique ID before sending to message array
+    incomingMessage.id = uuidv1();
+
+    userMessages.push(incomingMessage);
+    console.log(`${incomingMessage.username} said ${incomingMessage.content} `);
+
+    wss.broadcast(userMessages);
+
+  }); // on.message
+
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
-  ws.on('close', () => console.log('Client disconnected'));
-
+  ws.on('close', () =>
+    // clients.array.split()
+    console.log('Client disconnected'));
 });
 
-
+//broadcast messages to all
+wss.broadcast = function broadcast(data) {
+  wss.clients.forEach(function each(client) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(data));
+    }
+  });
+// implements, user is typing on other broadcast
+};
 
   // Construct a msg object containing the data the server needs to process the message from the chat client.
 
