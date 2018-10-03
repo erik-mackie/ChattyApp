@@ -33,7 +33,8 @@ class ChatBar extends React.Component {
           newMessage.username = this.state.usernameFieldValue;
           this.props.changeUserName(this.state.usernameFieldValue);
         }
-        this.props.addNewMessage(newMessage);
+        // this.props.addNewMessage(newMessage);
+        this.props.messageToServer(newMessage);
         messageInput.value = "";
       }
     }

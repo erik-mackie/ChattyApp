@@ -18,37 +18,51 @@ class App extends Component {
     this.state = {
       loading:true,
       messages: Message,
-      currentUser: "Anonymous"
+      currentUser: "Anonymous",
+      socket : new WebSocket("ws://localhost:3001")
     };
-    this.addNewMessage = this.addNewMessage.bind(this);
+    //this.addNewMessage = this.addNewMessage.bind(this);
+    this.messageToServer = this.messageToServer.bind(this);
     this.changeUserName = this.changeUserName.bind(this);
   }
 
   componentDidMount() {
 
-    const ws =  new WebSocket("ws://localhost:3001");
-    ws.send("Here's some text that the server is urgently awaiting!");
+    const ws = this.state.socket;
 
+    ws.onmessage = function (event) {
 
-      // ws.on('open', function open() {
-      //   ws.send('something');
-      // });
+      var msg = JSON.parse(event.data);
+      console.log(msg.message)
+    }
+
 
 
 
     // faux time for message load
     setTimeout(() => {
       console.log("Simulating incoming message");
-      const newMessage = {id: 8, username: "Michelle", content: "Hello there!"};
-      const messages = this.state.messages.concat(newMessage)
+      // const newMessage = {id: 8, username: "Michelle", content: "Hello there!"};
+      // const messages = this.state.messages.concat(newMessage)
       // Update the state of the app component.
       // Calling setState will trigger a call to render() in App and all child components.
 
       this.setState({
-        messages: messages,
+        // messages: messages,
         loading:false
       })
     }, 2000);
+  }
+  // send new message to server
+  messageToServer(message) {
+    // server reference
+    const ws = this.state.socket;
+    const messageToSend = {
+      /*user: this.state.currentUser,*/
+      message: message
+    }
+    //send new message as string
+     this.state.socket.send(JSON.stringify(messageToSend));
   }
 
   changeUserName(user) {
@@ -81,7 +95,7 @@ class App extends Component {
         <div>
           <h1>Hello React :)</h1>
           <MessageList messages={this.state.messages}/>
-          <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} addNewMessage={this.addNewMessage} />
+          <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
         </div>
       );
     }
