@@ -14,6 +14,7 @@ class ChatBar extends React.Component {
   }
 
   // handle user field change
+  //mentor advice, fix not in app.js
   handleChange(evt) {
     this.setState({usernameFieldValue: evt.target.value})
   }
@@ -29,7 +30,7 @@ class ChatBar extends React.Component {
           username: this.props.currentUser,
           content: messageInput.value
         };
-        // check if user handle field has changed, then update new message user handle.
+        //check if user handle field has changed, then update new message user handle.
         // if (newMessage.username !== this.state.usernameFieldValue) {
         //   newMessage.username = this.state.usernameFieldValue;
         //   this.props.changeUserName(this.state.usernameFieldValue);
@@ -42,7 +43,9 @@ class ChatBar extends React.Component {
     // must run on enter press
     // change username on enter;
     const usernameOnEnter = evt => {
-      // reverense update user
+      if(evt.key === 'Enter' && evt.target.name === "userBar") {
+        updateUser(evt);
+      }
     }
 
     const updateUser = evt => {
@@ -52,7 +55,11 @@ class ChatBar extends React.Component {
           type: "postNotification",
           content: `${this.props.currentUser} changed their name to ${userInput.value}`,
         }
-        this.props.messageToServer(newNotification);
+        this.props.changeUserName(userInput.value);
+        // if user input is equal to current user, do not send new server notification
+        if (this.props.currentUser !== userInput.value) {
+          this.props.messageToServer(newNotification);
+        }
     }
 
     return(
