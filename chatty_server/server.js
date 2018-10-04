@@ -18,20 +18,12 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 
-// Set up a callback that will run when a client connects to the server
-// When a client connects they are assigned a socket, represented by
-// the ws parameter in the callback.
 
 
-
-
-
-
-// on connection to server, take in message data into message array
 wss.on('connection', (ws) => {
   //current users on connection
   const numUsers = {
-    type: "newUserConnected",
+    type: 'newUserConnected',
     count: wss.clients.size,
   };
   wss.broadcast(numUsers);
@@ -49,32 +41,27 @@ wss.on('connection', (ws) => {
     // assign color to particular post from user obj
 
     switch(incomingPost.type) {
-        case "incomingMessage":
+        case 'incomingMessage':
         incomingPost.color = ws.color;
+        wss.broadcast(incomingPost);
         break;
-    switch(incomingPost.type) {
-        case "incomingNotification":
-
+        case 'incomingNotification':
+        wss.broadcast(incomingPost);
         break;
       default:
         // show an error in the console if the message type is unknown
-        throw new Error("Unknown event type " + messageFromServer.type);
-      }
+        throw new Error('Unknown event type ' + incomingPost.type);
     }
-
-
-    wss.broadcast(incomingPost);
   }); // on.message
 
   console.log('Client connected');
-  // Set up a callback for when a client closes the socket. This usually means they closed their browser.
+
   ws.on('close', () => {
     console.log('Client disconnected');
     numUsers.count = wss.clients.size;
     wss.broadcast(numUsers);
   })
-
-});
+}); // on.connection
 
 
 
@@ -82,21 +69,14 @@ wss.on('connection', (ws) => {
 function handlePosts(post) {
   const postToManage = post;
 
-    postToManage.type === "postMessage"
-      ? postToManage.type = "incomingMessage"
-      : postToManage.type = "incomingNotification"
+    postToManage.type === 'postMessage'
+      ? postToManage.type = 'incomingMessage'
+      : postToManage.type = 'incomingNotification'
 
   return postToManage;
 }
 
-// function createUserOBJ(socket) {
-//     currentUser
-//   const userID = uuidv1();
-
-//   USERS[userID] = socket;
-//   USERS.userID.socket
-// }
-
+// random color for user name
 function randomColor() {
   const colorList = ['#B22222','#0000CD','#9ACD32','#FF8C00']
   return colorList[Math.floor(Math.random()*colorList.length)]

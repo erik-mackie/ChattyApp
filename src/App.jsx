@@ -18,9 +18,9 @@ class App extends Component {
     this.state = {
       loading:true,
       messages: [],
-      currentUser: "Anonymous",
+      currentUser: 'Anonymous',
       numUsers: 0,
-      socket : new WebSocket("ws://localhost:3001")
+      socket : new WebSocket('ws://localhost:3001')
     };
     //this.addNewMessage = this.addNewMessage.bind(this);
     this.messageToServer = this.messageToServer.bind(this);
@@ -30,41 +30,37 @@ class App extends Component {
   componentDidMount() {
 
     const ws = this.state.socket;
-
-    // refactor? is switch required?
+    // handle server messages
     ws.onmessage = (event) => {
       const messageFromServer = JSON.parse(event.data);
-      console.log(messageFromServer)
+
       switch(messageFromServer.type) {
-        case "incomingMessage":
+        case 'incomingMessage':
           this.setState({
             messages: this.state.messages.concat(messageFromServer),
           })
         break;
-        case "incomingNotification":
+        case 'incomingNotification':
           this.setState({
             messages: this.state.messages.concat(messageFromServer)
           });
         break;
-        case "newUserConnected":
+        case 'newUserConnected':
           this.setState({
             numUsers: messageFromServer.count,
           })
         break;
 
-      default:
-        // show an error in the console if the message type is unknown
-        throw new Error("Unknown event type " + messageFromServer.type);
+        default:
+          // show an error in the console if the message type is unknown
+          throw new Error('Unknown event type ' + messageFromServer.type);
+      }
     }
-
-    }
-
 
     // faux time for message load
     setTimeout(() => {
-      console.log("Simulating incoming message");
+      console.log('Simulating incoming message');
       this.setState({
-        // messages: messages,
         loading:false
       })
     }, 1000);
@@ -72,47 +68,53 @@ class App extends Component {
 
   // send new message to server
   messageToServer(message) {
-    // server reference
-    const ws = this.state.socket;
     const messageToSend = message;
     //send new message as string
      this.state.socket.send(JSON.stringify(messageToSend));
   }
 
+  // change user name
   changeUserName(user) {
     this.setState({
       currentUser: user
     });
   }
 
-  // addNewMessage(message) {
-  //   const oldMessages = this.state.messages;
-  //   const newMessages = [...oldMessages, message];
-  //   this.setState({
-  //     messages: newMessages
-  //   });
-  // }
-
   render() {
     //refactor as terary, this is gross, make use of less lines
-    if (this.state.loading) {
-      return (
-        <div>
-          <Loading />
-          <NavBar numUsers={this.state.numUsers}/>
-          <ChatBar currentUser={this.state.currentUser}/>
-        </div>
-        )
-    } else {
-      return (
-        <div>
-          <h1>Messages</h1>
-          <NavBar numUsers={this.state.numUsers}/>
-          <MessageList messages={this.state.messages}/>
-          <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
-        </div>
-      );
-    }
+    // if (this.state.loading) {
+    //   return (
+    //     <div>
+    //       <Loading />
+    //       <NavBar numUsers={this.state.numUsers}/>
+    //       <ChatBar currentUser={this.state.currentUser}/>
+    //     </div>
+    //     )
+    // } else {
+    //   return (
+    //     <div>
+    //       <h1>Messages</h1>
+    //       <NavBar numUsers={this.state.numUsers}/>
+    //       <MessageList messages={this.state.messages}/>
+    //       <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
+    //     </div>
+    //   );
+    // }
+    return (
+      this.state.loading
+        ? <div>
+            <Loading />
+            <NavBar numUsers={this.state.numUsers}/>
+            <ChatBar currentUser={this.state.currentUser}/>
+          </div>
+        : <div>
+            <h1>Messages</h1>
+            <NavBar numUsers={this.state.numUsers}/>
+            <MessageList messages={this.state.messages}/>
+           <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
+          </div>
+    );
+
   }
 }
 

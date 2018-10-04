@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 
 function NavBar(props) {
 
-  const users = props.numUsers;
     return (
       <nav className="navbar">
         <a href="/" className="navbar-brand">Chatty</a>
