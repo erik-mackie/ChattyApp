@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 const dep = require
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
-import Message from './Message.jsx';
+import NavBar from './navBar.jsx';
 
 
 function Loading() {
@@ -17,8 +17,9 @@ class App extends Component {
     super(props);
     this.state = {
       loading:true,
-      messages: Message,
+      messages: [],
       currentUser: "Anonymous",
+      numUsers: 0,
       socket : new WebSocket("ws://localhost:3001")
     };
     //this.addNewMessage = this.addNewMessage.bind(this);
@@ -30,37 +31,51 @@ class App extends Component {
 
     const ws = this.state.socket;
 
-    ws.onmessage = function (event) {
-
-      var msg = JSON.parse(event.data);
-      console.log(msg.message)
+    // refactor? is switch required?
+    ws.onmessage = (event) => {
+      const messageFromServer = JSON.parse(event.data);
+      console.log(messageFromServer.count, "in onmessage")
+      switch(messageFromServer.type) {
+        case "incomingMessage":
+          this.setState({
+            messages: this.state.messages.concat(messageFromServer)
+          });
+        break;
+        case "incomingNotification":
+          this.setState({
+            messages: this.state.messages.concat(messageFromServer)
+          });
+        break;
+        case "incomingUserCount":
+          this.setState({
+            numUsers: messageFromServer.count
+          })
+        break;
+      default:
+        // show an error in the console if the message type is unknown
+        throw new Error("Unknown event type " + messageFromServer.type);
     }
 
-
+    }
 
 
     // faux time for message load
     setTimeout(() => {
       console.log("Simulating incoming message");
-      // const newMessage = {id: 8, username: "Michelle", content: "Hello there!"};
-      // const messages = this.state.messages.concat(newMessage)
-      // Update the state of the app component.
-      // Calling setState will trigger a call to render() in App and all child components.
 
       this.setState({
         // messages: messages,
         loading:false
       })
-    }, 2000);
+    }, 1000);
   }
+
   // send new message to server
   messageToServer(message) {
     // server reference
     const ws = this.state.socket;
-    const messageToSend = {
-      /*user: this.state.currentUser,*/
-      message: message
-    }
+    const messageToSend = message;
+
     //send new message as string
      this.state.socket.send(JSON.stringify(messageToSend));
   }
@@ -70,16 +85,15 @@ class App extends Component {
     this.setState({
       currentUser: user
     });
-
   }
 
-  addNewMessage(message) {
-    const oldMessages = this.state.messages;
-    const newMessages = [...oldMessages, message];
-    this.setState({
-      messages: newMessages
-    });
-  }
+  // addNewMessage(message) {
+  //   const oldMessages = this.state.messages;
+  //   const newMessages = [...oldMessages, message];
+  //   this.setState({
+  //     messages: newMessages
+  //   });
+  // }
 
   render() {
     //refactor as terary, this is gross, make use of less lines
@@ -87,13 +101,15 @@ class App extends Component {
       return (
         <div>
           <Loading />
+          <NavBar numUsers={this.state.numUsers}/>
           <ChatBar currentUser={this.state.currentUser}/>
         </div>
         )
     } else {
       return (
         <div>
-          <h1>Hello React :)</h1>
+          <h1>Messages</h1>
+          <NavBar numUsers={this.state.numUsers}/>
           <MessageList messages={this.state.messages}/>
           <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
         </div>

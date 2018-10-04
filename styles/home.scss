@@ -74,19 +74,27 @@
       position: fixed;
       right: 0;
       top: 0;
+
+      .navbar-brand {
+        color: inherit;
+        display: block;
+        float: left;
+        font-weight: 700;
+        font-size: 28px;
+        height: 60px;
+        line-height: 60px;
+        padding: 0 10px;
+        text-decoration: none;
+      }
+
+      p {
+        font-size:20px;
+        margin-right: 10px;
+        float:right;
+      }
     }
 
-    .navbar-brand {
-      color: inherit;
-      display: block;
-      float: left;
-      font-weight: 700;
-      font-size: 28px;
-      height: 60px;
-      line-height: 60px;
-      padding: 0 10px;
-      text-decoration: none;
-    }
+
 
     h1 {
   color: tomato;

@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 
+//
+
 
 class ChatBar extends React.Component {
 
@@ -17,33 +19,40 @@ class ChatBar extends React.Component {
   }
 
   render(){
-
+    // send
     const messageOnEnter = evt => {
       if(evt.key === 'Enter') {
         const messageInput = evt.target;
         // new message obj
         const newMessage = {
-          id: new Date(),
-          type: "incomingMessage",
-          content: messageInput.value,
-          username: this.props.currentUser
+          type: "postMessage",
+          username: this.props.currentUser,
+          content: messageInput.value
         };
         // check if user handle field has changed, then update new message user handle.
-        if (newMessage.username !== this.state.usernameFieldValue) {
-          newMessage.username = this.state.usernameFieldValue;
-          this.props.changeUserName(this.state.usernameFieldValue);
-        }
+        // if (newMessage.username !== this.state.usernameFieldValue) {
+        //   newMessage.username = this.state.usernameFieldValue;
+        //   this.props.changeUserName(this.state.usernameFieldValue);
+        // }
         // this.props.addNewMessage(newMessage);
         this.props.messageToServer(newMessage);
         messageInput.value = "";
       }
     }
+    // must run on enter press
     // change username on enter;
     const usernameOnEnter = evt => {
-      if(evt.key === 'Enter') {
+      // reverense update user
+    }
+
+    const updateUser = evt => {
+
         const userInput = evt.target;
-        this.props.changeUserName(userInput.value);
-      }
+        const newNotification = {
+          type: "postNotification",
+          content: `${this.props.currentUser} changed their name to ${userInput.value}`,
+        }
+        this.props.messageToServer(newNotification);
     }
 
     return(
@@ -51,7 +60,8 @@ class ChatBar extends React.Component {
         <input className="chatbar-username" name="userBar"
                 value={this.state.usernameFieldValue}
                 onChange={this.handleChange}
-                onKeyPress={usernameOnEnter} />
+                onKeyPress={usernameOnEnter}
+                onBlur={updateUser} />
         <input className="chatbar-message" name="messageBar" placeholder="Type a message and hit ENTER" onKeyPress={messageOnEnter} />
       </footer>
       );
@@ -60,5 +70,6 @@ class ChatBar extends React.Component {
 }
 
 export default ChatBar;
+
 
 
