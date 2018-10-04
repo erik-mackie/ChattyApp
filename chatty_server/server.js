@@ -23,19 +23,22 @@ const wss = new SocketServer({ server });
 // the ws parameter in the callback.
 
 
-// const chatPosts = [];
+
+
+
 
 // on connection to server, take in message data into message array
 wss.on('connection', (ws) => {
   //current users on connection
   const numUsers = {
-    type: "incomingUserCount",
-    count: wss.clients.size
+    type: "newUserConnected",
+    count: wss.clients.size,
   };
-
   wss.broadcast(numUsers);
+  // assign color to user
+  ws.color = randomColor();
 
-  console.log('Client connected');
+
   // recieve new message as json and parse
   ws.on('message', function incoming(data) {
     const post = JSON.parse(data);
@@ -43,11 +46,27 @@ wss.on('connection', (ws) => {
     post.id = uuidv1();
     //manage incoming data and change datatype
     const incomingPost = handlePosts(post);
+    // assign color to particular post from user obj
+
+    switch(incomingPost.type) {
+        case "incomingMessage":
+        incomingPost.color = ws.color;
+        break;
+    switch(incomingPost.type) {
+        case "incomingNotification":
+
+        break;
+      default:
+        // show an error in the console if the message type is unknown
+        throw new Error("Unknown event type " + messageFromServer.type);
+      }
+    }
+
 
     wss.broadcast(incomingPost);
   }); // on.message
 
-
+  console.log('Client connected');
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {
     console.log('Client disconnected');
@@ -70,6 +89,18 @@ function handlePosts(post) {
   return postToManage;
 }
 
+// function createUserOBJ(socket) {
+//     currentUser
+//   const userID = uuidv1();
+
+//   USERS[userID] = socket;
+//   USERS.userID.socket
+// }
+
+function randomColor() {
+  const colorList = ['#B22222','#0000CD','#9ACD32','#FF8C00']
+  return colorList[Math.floor(Math.random()*colorList.length)]
+}
 
 //broadcast messages to all
 wss.broadcast = function broadcast(data) {

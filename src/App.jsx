@@ -34,23 +34,24 @@ class App extends Component {
     // refactor? is switch required?
     ws.onmessage = (event) => {
       const messageFromServer = JSON.parse(event.data);
-      console.log(messageFromServer.count, "in onmessage")
+      console.log(messageFromServer)
       switch(messageFromServer.type) {
         case "incomingMessage":
           this.setState({
-            messages: this.state.messages.concat(messageFromServer)
-          });
+            messages: this.state.messages.concat(messageFromServer),
+          })
         break;
         case "incomingNotification":
           this.setState({
             messages: this.state.messages.concat(messageFromServer)
           });
         break;
-        case "incomingUserCount":
+        case "newUserConnected":
           this.setState({
-            numUsers: messageFromServer.count
+            numUsers: messageFromServer.count,
           })
         break;
+
       default:
         // show an error in the console if the message type is unknown
         throw new Error("Unknown event type " + messageFromServer.type);
@@ -62,7 +63,6 @@ class App extends Component {
     // faux time for message load
     setTimeout(() => {
       console.log("Simulating incoming message");
-
       this.setState({
         // messages: messages,
         loading:false
@@ -75,13 +75,11 @@ class App extends Component {
     // server reference
     const ws = this.state.socket;
     const messageToSend = message;
-
     //send new message as string
      this.state.socket.send(JSON.stringify(messageToSend));
   }
 
   changeUserName(user) {
-    console.log(user);
     this.setState({
       currentUser: user
     });
