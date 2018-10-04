@@ -22,7 +22,8 @@ const wss = new SocketServer({ server });
 // When a client connects they are assigned a socket, represented by
 // the ws parameter in the callback.
 
-const chatPosts = [];
+
+// const chatPosts = [];
 
 // on connection to server, take in message data into message array
 wss.on('connection', (ws) => {
@@ -32,14 +33,18 @@ wss.on('connection', (ws) => {
   // recieve new message as json and parse
   ws.on('message', function incoming(data) {
 
-    const incomingMessage = JSON.parse(data);
-    // add unique ID before sending to message array
-    incomingMessage.id = uuidv1();
+    const post = JSON.parse(data);
 
-    chatPosts.push(incomingMessage);
-    console.log(`${incomingMessage.username} said ${incomingMessage.content} `);
-    console.log(chatPosts)
-    wss.broadcast(chatPosts);
+    // add unique ID before sending to message handlers
+    post.id = uuidv1();
+
+    //manage incoming data and change datatype
+    const incomingPost = handlePosts(post)
+
+    // chatPosts.push(incomingPost);
+    // // just send incoming
+    // console.log(chatPosts)
+    wss.broadcast(incomingPost);
 
   }); // on.message
 
@@ -48,6 +53,20 @@ wss.on('connection', (ws) => {
   ws.on('close', () =>
     console.log('Client disconnected'));
 });
+
+
+
+// deletes all other data, need to just change type
+function handlePosts(post) {
+  const postToManage = post;
+
+    postToManage.type === "postMessage"
+      ? postToManage.type = "incomingMessage"
+      : postToManage.type = "incomingNotification"
+
+  return postToManage;
+}
+
 
 //broadcast messages to all
 wss.broadcast = function broadcast(data) {
