@@ -5,11 +5,11 @@ Chatty app is a real time chat application. Open the page, and chat with anyone 
 ## Final Product
 
 
-!["Landing Page for user login and Registration"](https://github.com/erik-mackie/TinyApp/blob/master/docs/landing.png?raw=true)
+!["Users, can post with or without names"](https://github.com/erik-mackie/ChattyApp/blob/master/Media/Chat.png)
 
-!["Populated Urls list, with controls"](https://github.com/erik-mackie/TinyApp/blob/master/docs/urls_list.png?raw=true)
+!["New User cannot see chat history"](https://github.com/erik-mackie/ChattyApp/blob/master/Media/NewUser.png)
 
-!["Edit urls page"](https://github.com/erik-mackie/TinyApp/blob/master/docs/url_edit.png?raw=true)
+!["User in chat updates "](https://github.com/erik-mackie/ChattyApp/blob/master/Media/ChatWithNewUser.png)
 
 ## Dependencies
 
