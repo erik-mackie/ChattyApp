@@ -10,8 +10,6 @@ const PORT = 3001;
 
 // Create a new express server
 const server = express()
-
- // Make the express server serve static assets (html, javascript, css) from the /public folder
 .use(express.static('public'))
 .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${ PORT }`));
 
@@ -22,11 +20,14 @@ const wss = new SocketServer({ server });
 
 wss.on('connection', (ws) => {
   //current users on connection
-  const numUsers = {
-    type: 'newUserConnected',
-    count: wss.clients.size,
-  };
-  wss.broadcast(numUsers);
+  function tattleAboutClientCount() {
+    const numUsers = {
+      type: 'newUserConnected',
+      count: wss.clients.size,
+    };
+    wss.broadcast(numUsers);
+  }
+  tattleAboutClientCount();
   // assign color to user
   ws.color = randomColor();
 
@@ -34,51 +35,40 @@ wss.on('connection', (ws) => {
   // recieve new message as json and parse
   ws.on('message', function incoming(data) {
     const post = JSON.parse(data);
-    // add unique ID before sending to message handlers
-    post.id = uuidv1();
     //manage incoming data and change datatype
-    const incomingPost = handlePosts(post);
-    // assign color to particular post from user obj
+    const incomingPost = Object.assign({}, post); // duplicate so we don't edit the incoming one
+    // add unique ID before sending to message handlers
+    incomingPost.id = uuidv1();
 
-    switch(incomingPost.type) {
-        case 'incomingMessage':
+    // handling messages to client
+    switch(post.type) {
+      case 'postMessage':
+        incomingPost.type = 'incomingMessage';
         incomingPost.color = ws.color;
-        wss.broadcast(incomingPost);
         break;
-        case 'incomingNotification':
-        wss.broadcast(incomingPost);
+      case 'postNotification':
+        incomingPost.type = 'incomingNotification';
         break;
+
       default:
         // show an error in the console if the message type is unknown
-        throw new Error('Unknown event type ' + incomingPost.type);
+        throw new Error('Unknown event type ' + post.type);
     }
+
+    wss.broadcast(incomingPost);
   }); // on.message
 
   console.log('Client connected');
 
   ws.on('close', () => {
     console.log('Client disconnected');
-    numUsers.count = wss.clients.size;
-    wss.broadcast(numUsers);
+    tattleAboutClientCount();
   })
 }); // on.connection
 
-
-
-// deletes all other data, need to just change type
-function handlePosts(post) {
-  const postToManage = post;
-
-    postToManage.type === 'postMessage'
-      ? postToManage.type = 'incomingMessage'
-      : postToManage.type = 'incomingNotification'
-
-  return postToManage;
-}
-
 // random color for user name
 function randomColor() {
-  const colorList = ['#B22222','#0000CD','#9ACD32','#FF8C00']
+  const colorList = ['#B22222','#0000CD','#9ACD32','#FF8C00', '#ff00ff', '#000000']
   return colorList[Math.floor(Math.random()*colorList.length)]
 }
 

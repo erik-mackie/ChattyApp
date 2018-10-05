@@ -1,14 +1,16 @@
 import React, {Component} from 'react';
-const dep = require
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
-import NavBar from './navBar.jsx';
+import NavBar from './NavBar.jsx';
+
+// const test = 'https://exmaple.com/image.jpg';
+// console.log(test.match(/[^/]+(jpg|png|gif)$/))
 
 
 function Loading() {
   return (
     <h1>Loading...</h1>
-    )
+  )
 }
 
 class App extends Component {
@@ -20,26 +22,20 @@ class App extends Component {
       messages: [],
       currentUser: 'Anonymous',
       numUsers: 0,
-      socket : new WebSocket('ws://localhost:3001')
     };
-    //this.addNewMessage = this.addNewMessage.bind(this);
     this.messageToServer = this.messageToServer.bind(this);
     this.changeUserName = this.changeUserName.bind(this);
   }
 
   componentDidMount() {
 
-    const ws = this.state.socket;
+    this.ws = new WebSocket(`ws://localhost:3001`);
     // handle server messages
-    ws.onmessage = (event) => {
+    this.ws.onmessage = (event) => {
       const messageFromServer = JSON.parse(event.data);
 
       switch(messageFromServer.type) {
         case 'incomingMessage':
-          this.setState({
-            messages: this.state.messages.concat(messageFromServer),
-          })
-        break;
         case 'incomingNotification':
           this.setState({
             messages: this.state.messages.concat(messageFromServer)
@@ -50,7 +46,6 @@ class App extends Component {
             numUsers: messageFromServer.count,
           })
         break;
-
         default:
           // show an error in the console if the message type is unknown
           throw new Error('Unknown event type ' + messageFromServer.type);
@@ -68,50 +63,44 @@ class App extends Component {
 
   // send new message to server
   messageToServer(message) {
-    const messageToSend = message;
+    const newMessage = {
+      type: "postMessage",
+      username: this.state.currentUser,
+      content: message
+    }
     //send new message as string
-     this.state.socket.send(JSON.stringify(messageToSend));
+    this.ws.send(JSON.stringify(newMessage));
   }
 
   // change user name
-  changeUserName(user) {
+  changeUserName(newUsername) {
+    const newNotification = {
+      type: "postNotification",
+      content: `${this.state.currentUser} changed their name to ${newUsername}`,
+    };
+    // if user input is equal to current user, do not send new server notification
+    if (this.state.currentUser !== newUsername) {
+      this.ws.send(JSON.stringify(newNotification));
+    }
     this.setState({
-      currentUser: user
+      currentUser: newUsername
     });
   }
 
   render() {
-    //refactor as terary, this is gross, make use of less lines
-    // if (this.state.loading) {
-    //   return (
-    //     <div>
-    //       <Loading />
-    //       <NavBar numUsers={this.state.numUsers}/>
-    //       <ChatBar currentUser={this.state.currentUser}/>
-    //     </div>
-    //     )
-    // } else {
-    //   return (
-    //     <div>
-    //       <h1>Messages</h1>
-    //       <NavBar numUsers={this.state.numUsers}/>
-    //       <MessageList messages={this.state.messages}/>
-    //       <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
-    //     </div>
-    //   );
-    // }
+
     return (
       this.state.loading
         ? <div>
-            <Loading />
             <NavBar numUsers={this.state.numUsers}/>
+            <Loading />
             <ChatBar currentUser={this.state.currentUser}/>
           </div>
         : <div>
-            <h1>Messages</h1>
             <NavBar numUsers={this.state.numUsers}/>
+            <h1>Messages</h1>
             <MessageList messages={this.state.messages}/>
-           <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
+            <ChatBar currentUser={this.state.currentUser} changeUserName={this.changeUserName} messageToServer={this.messageToServer} />
           </div>
     );
 
@@ -120,5 +109,6 @@ class App extends Component {
 
 
 export default App;
+
 
 
